@@ -9,6 +9,8 @@
 # move said applications out of the umbrella.
 import Config
 
+import_config "proxy.exs"
+
 config :front,
   generators: [context_app: false]
 

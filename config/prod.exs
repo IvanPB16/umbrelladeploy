@@ -1,5 +1,24 @@
 import Config
 
+
+base_domain = System.get_env("BASE_DOMAIN") ||
+  raise """
+  environment variable BASE_DOMAIN is missing.
+  For example: localdev.io
+  """
+
+originslist = [
+  "//*.herokuapp.com",
+  "//*.front.#{base_domain}",
+  "//*.#{base_domain}"
+  ]
+
+config :master_proxy,
+  http: [port: System.get_env("PORT") ],
+  url: [scheme: "https", host: "localhost", port: 443],
+  force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  check_origin: originslist
+
 # For production, don't forget to configure the url host
 # to something meaningful, Phoenix uses this information
 # when generating URLs.
@@ -10,8 +29,10 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :front, Front.Endpoint,
-  url: [host: "prueba.com", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  url: [host: "front.#{base_domain}", port: 4000],
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  check_origin: originslist,
+  server: false
 
 # ## SSL Support
 #
